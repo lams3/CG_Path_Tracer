@@ -13,6 +13,9 @@
 #include "../math/Matrix4.h"
 
 class Object3D {
+
+public:
+
     std::vector<Object3D&> children;
     Object3D* parent;
     Matrix4 matrix;
@@ -22,15 +25,17 @@ class Object3D {
     Quaternion quaternion;
     bool visible;
 
-    void add(const Object3D&, const Object3D&...);
+    Object3D();
 
-    void remove(const Object3D&, const Object3D&...);
+    void add(const Object3D& obj);
 
-    void applyMatrix(const Matrix4&);
+    void remove(const Object3D& obj);
 
-    void applyQuaternion(const Quaternion&);
+    void applyMatrix(const Matrix4& matrix);
 
-    void lookAt(const Vector3&);
+    void applyQuaternion(const Quaternion& q);
+
+    void lookAt(const Vector3& v);
 
 };
 
