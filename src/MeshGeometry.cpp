@@ -88,3 +88,11 @@ void MeshGeometry::barycentric(glm::vec3 p, glm::vec3 a, glm::vec3 b, glm::vec3 
 	w = 1.0f - u - v ; // gamma
 }
 
+glm::vec3 MeshGeometry::randomPoint() {
+	glm::ivec3 face = this->faces[random() % this->faces.size()];
+	float alpha = (float) rand() / (float) INT_MAX;
+	float beta = (1.0f - alpha) * ((float) rand() / (float) INT_MAX);
+	float gama = 1.0f - alpha - beta;
+	return alpha * this->vertices[face.x] + beta * this->vertices[face.y] + gama * this->vertices[face.z];
+}
+

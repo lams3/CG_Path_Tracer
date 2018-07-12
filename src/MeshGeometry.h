@@ -23,6 +23,8 @@ public:
     ObjectIntersection intersect(const Ray& ray) override ;
 
 	void barycentric(glm::vec3 vec, glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, float &u, float &d, float &w);
+
+	glm::vec3 randomPoint() override;
 };
 
 

@@ -11,7 +11,7 @@ Light::Light(Geometry *geometry, glm::vec3 color, float intensity) {
 }
 
 glm::vec3 Light::randomPoint() {
-	//return this->geometry.randomPoint();
+	return this->geometry->randomPoint();
 }
 
 

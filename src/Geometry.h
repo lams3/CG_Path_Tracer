@@ -15,6 +15,8 @@ public:
     virtual std::string toString() = 0;
 
     virtual ObjectIntersection intersect(const Ray& ray) = 0;
+
+	virtual glm::vec3 randomPoint() = 0;
 };
 
 

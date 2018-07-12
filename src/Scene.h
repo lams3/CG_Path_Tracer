@@ -17,17 +17,17 @@ class Scene {
 private:
     std::vector<Camera*> cameras;
     std::vector<Object3D*> objects;
-    std::vector<Light*> lights;
+    std::vector<Object3D *> lights;
 
 public:
     Scene();
 
     void add(Camera* camera);
     void add(Object3D* object);
-    void add(Light* light);
+    void addLight(Object3D* light);
     std::vector<Camera *> getCameras();
     std::vector<Object3D *> getObjects();
-    std::vector<Light *> getLights();
+    std::vector<Object3D *> getLights();
     glm::vec3 trace(const Ray& ray, int depth);
     ObjectIntersection intersect(const Ray& ray);
 };

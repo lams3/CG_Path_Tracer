@@ -22,6 +22,8 @@ public:
     std::string toString();
 
     ObjectIntersection intersect(const Ray& ray);
+
+	glm::vec3 randomPoint();
 };
 
 

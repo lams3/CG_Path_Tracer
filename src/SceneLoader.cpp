@@ -25,19 +25,21 @@ void SceneLoader::load(const std::string& path, Scene*& scene) {
             cameraLoader.load(subPath + input, camera);
             scene->add(camera);
         } else if (input == "object") {
-            sceneFile >> input;
+	        glm::vec3 color;
+	        float kd, ks, kt;
+	        sceneFile >> input >> color.r >> color.g >> color.b >> kd >> ks >> kt;
             Object3D* object;
             objectLoader.load(subPath + input, object);
+            object->material = Material::makeObjectMaterial(kd, ks, kt, color);
             scene->add(object);
         } else if (input == "light") {
-            sceneFile >> input;
-            Light* light;
+            glm::vec3 color;
+            float intensity;
+            sceneFile >> input >> color.r >> color.g >> color.b >> intensity;
             Object3D* object;
             objectLoader.load(subPath + input, object);
-            float r, g, b, intensity;
-            sceneFile >> r >> g >> b >> intensity;
-            light = new Light(object->geometry, glm::vec3(r, g, b), intensity);
-            scene->add(light);
+            object->material = Material::makeLightMaterial(intensity, color);
+            scene->addLight(object);
         }
     }
 

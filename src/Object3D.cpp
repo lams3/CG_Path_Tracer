@@ -23,3 +23,7 @@ ObjectIntersection Object3D::intersect(const Ray &ray) {
     intersection.material = this->material;
     return intersection;
 }
+
+glm::vec3 Object3D::randomPoint() {
+    return this->geometry->randomPoint();
+}

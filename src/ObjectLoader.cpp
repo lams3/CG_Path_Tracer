@@ -76,6 +76,6 @@ void ObjectLoader::load(const std::string &path, Object3D*& object) {
 
     object = new Object3D (
         new MeshGeometry(vertices, faces, normals),
-        new Material()
+        nullptr
     );
 }

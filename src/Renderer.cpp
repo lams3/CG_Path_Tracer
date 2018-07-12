@@ -8,6 +8,19 @@
 
 Renderer::Renderer() = default;
 
+void Renderer::drawBuffer(SDL_Renderer* renderer, std::vector<glm::vec3>& buffer, glm::ivec2 resolution, int samples) {
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+    for (int i = 0; i < resolution.x; i++) {
+        for (int j = 0; j < resolution.y; j++) {
+            glm::vec3 color = buffer[j * resolution.x + i] / (float) samples;
+            SDL_SetRenderDrawColor(renderer, (int) (255 * color.r), (int) (255 * color.g), (int) (255 * color.b), 255);
+            SDL_RenderDrawPoint(renderer, j, i);
+        }
+    }
+    SDL_RenderPresent(renderer);
+}
+
 void Renderer::render(Scene*& scene, int nSamples) {
     Camera* camera = scene->getCameras()[0];
 
@@ -17,25 +30,21 @@ void Renderer::render(Scene*& scene, int nSamples) {
     SDL_Renderer* renderer;
     SDL_CreateWindowAndRenderer(camera->getResolution().x, camera->getResolution().y, 0, &window, &renderer);
 
-    SDL_Delay(100);
+    std::vector<glm::vec3> buffer(camera->getResolution().x * camera->getResolution().y);
+    for (auto& v : buffer)
+        v = glm::vec3(0.0, 0.0, 0.0);
 
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
-    for (int i = 0; i < camera->getResolution().y; i++) {
-        std::cout << "progress: " << (100.0f * ((float)i / camera->getResolution().y)) << "%" << std::endl;
-        for (int j = 0; j < camera->getResolution().x; j++) {
-            glm::vec3 color = glm::vec3();
-            for (int s = 0; s < nSamples; s++) {
-                color += scene->trace(camera->getRay(glm::vec2(j, i)), 0) / (float) nSamples;
+    for (int s = 0; s < nSamples; s++) {
+        drawBuffer(renderer, buffer, camera->getResolution(), s);
+        std::cout << "progress: " << (100.0f * ((float)s / nSamples)) << "%" << std::endl;
+        for (int i = 0; i < camera->getResolution().y; i++) {
+            for (int j = 0; j < camera->getResolution().x; j++) {
+                buffer[j * camera->getResolution().x + i] +=
+                        scene->trace(camera->getRay(glm::vec2(j, i)), 0);
             }
-            SDL_SetRenderDrawColor(renderer, (int) 255 * color.r, (int) 255 * color.g, (int) 255 * color.b, 255);
-            SDL_RenderDrawPoint(renderer, j, i);
+            SDL_PollEvent(nullptr);
         }
-        SDL_RenderPresent(renderer);
-        SDL_PollEvent(nullptr);
     }
-
-    std::cout << glm::length(glm::vec3(1.0, 1.0, 1.0)) << std::endl;
 
     while (true) {
         SDL_Event e;

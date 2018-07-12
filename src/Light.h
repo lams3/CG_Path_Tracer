@@ -9,14 +9,14 @@
 #include "Object3D.h"
 
 class Light {
+	public:
 	Geometry* geometry;
 	glm::vec3 color;
 	float intensity;
 
-	glm::vec3 randomPoint();
-
-	public:
 	Light(Geometry* geometry, glm::vec3 color, float intensity);
+
+	glm::vec3 randomPoint();
 };
 
 

@@ -7,9 +7,19 @@
 
 
 #include <string>
+#include <glm/glm.hpp>
 
 class Material {
-public:
+	public:
+
+	float kd, ks, kt;
+	bool light;
+	glm::vec3 color;
+
+	static Material* makeLightMaterial(float intensity, glm::vec3 color);
+
+	static Material* makeObjectMaterial(float kd, float ks, float kt, glm::vec3 color);
+
     virtual std::string toString();
 };
 
