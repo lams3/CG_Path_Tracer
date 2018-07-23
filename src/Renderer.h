@@ -15,7 +15,9 @@ public:
 
     void render(Scene*& scene, int nSamples);
 
-	void drawBuffer(SDL_Renderer *renderer, std::vector<glm::vec3> &buffer, glm::ivec2 resolution, int samples);
+	void drawBuffer(SDL_Renderer *renderer, std::vector<glm::vec3> &buffer, glm::ivec2 resolution, int samples, float max);
+
+	void drawBuffer(SDL_Renderer *renderer, std::vector<glm::vec3> &buffer, glm::ivec2 resolution, int samples, int index);
 };
 
 

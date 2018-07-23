@@ -44,18 +44,18 @@ ObjectIntersection MeshGeometry::intersect(const Ray &ray) {
 
         glm::vec3 q = ray.origin + t * ray.direction;
 
-	    float u, v, w;
-	    u = dot(glm::cross(v1 - q, v2 - q), n);
-	    v = dot(glm::cross(q - v0, v2 - v0), n);
-	    w = dot(glm::cross(v1 - v0, q - v0), n);
+	    float d1, d2, d3;
+	    d1 = dot(glm::cross(v1 - q, v2 - q), n);
+	    d2 = dot(glm::cross(q - v0, v2 - v0), n);
+	    d3 = dot(glm::cross(v1 - v0, q - v0), n);
 
-	    if (u < 0 || v < 0 || w < 0) continue;
+	    if (d1 < 0 || d2 < 0 || d3 < 0)
+	    	continue;
 
 	    if (tMin == -1 || t < tMin) {
             tMin = t;
             tMinFace = face;
         }
-
      }
 
     if (tMin == -1)
@@ -65,13 +65,13 @@ ObjectIntersection MeshGeometry::intersect(const Ray &ray) {
 	glm::vec3 v0 = this->vertices[tMinFace.x];
 	glm::vec3 v1 = this->vertices[tMinFace.y];
 	glm::vec3 v2 = this->vertices[tMinFace.z];
-	float u, v, w;
+	/*float u, v, w;
 	barycentric(position, v0, v1, v2, u, v, w);
     glm::vec3 n0 = this->normals[tMinFace.x];
     glm::vec3 n1 = this->normals[tMinFace.y];
-    glm::vec3 n2 = this->normals[tMinFace.z];
-    glm::vec3 normal = glm::normalize((u * n0) + (v * n1) + (w * n2));
-
+    glm::vec3 n2 = this->normals[tMinFace.z];*/
+    //glm::vec3 normal = glm::normalize((u * n0) + (v * n1) + (w * n2));
+	glm::vec3 normal = glm::normalize(glm::cross(v1 - v0, v2 - v0)) ;
 	return ObjectIntersection(tMin, position, normal, nullptr);
 }
 

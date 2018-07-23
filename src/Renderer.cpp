@@ -8,14 +8,17 @@
 
 Renderer::Renderer() = default;
 
-void Renderer::drawBuffer(SDL_Renderer* renderer, std::vector<glm::vec3>& buffer, glm::ivec2 resolution, int samples) {
+void Renderer::drawBuffer(SDL_Renderer* renderer, std::vector<glm::vec3>& buffer, glm::ivec2 resolution, int samples, int index) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-    for (int i = 0; i < resolution.x; i++) {
-        for (int j = 0; j < resolution.y; j++) {
-            glm::vec3 color = buffer[j * resolution.x + i] / (float) samples;
-            SDL_SetRenderDrawColor(renderer, (int) (255 * color.r), (int) (255 * color.g), (int) (255 * color.b), 255);
-            SDL_RenderDrawPoint(renderer, j, i);
+	for (int i = 0; i < resolution.x; i++) {
+	    for (int j = 0; j < resolution.y; j++) {
+            glm::vec3 color = (buffer[j * resolution.x + i] / (float) ((i <= index) ? samples : (samples - 1)));
+            color = glm::clamp(color, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+	        if (i == index)
+            	color = glm::vec3(0.0f, 0.0f, 1.0f);
+	        SDL_SetRenderDrawColor(renderer, (int) (255 * color.r), (int) (255 * color.g), (int) (255 * color.b), 255);
+            SDL_RenderDrawPoint(renderer, i, j);
         }
     }
     SDL_RenderPresent(renderer);
@@ -34,19 +37,31 @@ void Renderer::render(Scene*& scene, int nSamples) {
     for (auto& v : buffer)
         v = glm::vec3(0.0, 0.0, 0.0);
 
-    for (int s = 0; s < nSamples; s++) {
-        drawBuffer(renderer, buffer, camera->getResolution(), s);
-        std::cout << "progress: " << (100.0f * ((float)s / nSamples)) << "%" << std::endl;
-        for (int i = 0; i < camera->getResolution().y; i++) {
-            for (int j = 0; j < camera->getResolution().x; j++) {
-                buffer[j * camera->getResolution().x + i] +=
-                        scene->trace(camera->getRay(glm::vec2(j, i)), 0);
+    for (int s = 1; s <= nSamples; s++) {
+	    drawBuffer(renderer, buffer, camera->getResolution(), s, 0);
+	    int j;
+	    time_t start, stop;
+	    time(&start);
+	    #pragma omp parallel for schedule(dynamic, 1) private(j)
+	    for (int i = 0; i < camera->getResolution().x; i++) {
+		    for (j = 0; j < camera->getResolution().y; j++) {
+                int index = j * camera->getResolution().x + i;
+	            buffer[index] +=
+                        scene->trace(camera->getRay(glm::vec2(i, j)), 0);
             }
-            SDL_PollEvent(nullptr);
+            //std::cout << i << std::endl;
+	        SDL_PollEvent(nullptr);
+	        //if (i % 10 == 0)
+		    //    drawBuffer(renderer, buffer, camera->getResolution(), s, i);
         }
-    }
+        time(&stop);
+	    std::cout << difftime(stop, start) << std::endl;
+	    std::cout << "progress: " << (100.0f * ((float)s / nSamples)) << "%" << "(" << s << "/" << nSamples << ")" << std::endl;
+	}
 
-    while (true) {
+	std::cout << "Finished!" << std::endl;
+
+	while (true) {
         SDL_Event e;
         SDL_PollEvent(&e);
         if (e.type == SDL_QUIT)
