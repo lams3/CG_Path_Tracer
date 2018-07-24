@@ -32,25 +32,33 @@ ObjectIntersection MeshGeometry::intersect(const Ray &ray) {
         glm::vec3 v1 = this->vertices[face.y];
         glm::vec3 v2 = this->vertices[face.z];
         glm::vec3 n = glm::normalize(glm::cross(v1 - v0, v2 - v0));
+        glm::vec3 e1 = v1 - v0;
+        glm::vec3 e2 = v2 - v0;
+        glm::vec3 h = glm::cross(ray.direction, e2);
+        float a = glm::dot(e1, h);
 
-        if (glm::dot(n, ray.direction) == 0.0f)
+        const float EPSILON = 0.0001f;
+
+        if (a > -EPSILON && a < EPSILON)
+	        continue;
+
+        float f = 1.0f / a;
+        glm::vec3 s = ray.origin - v0;
+        float u = f * glm::dot(s, h);
+
+        if(u < 0.0f || u > 1.0f)
             continue;
 
-	    float d = -glm::dot(n, v0);
-	    float t = (- d - glm::dot(n, ray.origin)) / glm::dot(n, ray.direction);
+        glm::vec3 q = glm::cross(s, e1);
+        float v = f * glm::dot(ray.direction, q);
+
+        if (v < 0.0f || u + v > 1.0f)
+	        continue;
+
+        float t = f * glm::dot(e2, q);
 
         if (t < ray.minDistance)
             continue;
-
-        glm::vec3 q = ray.origin + t * ray.direction;
-
-	    float d1, d2, d3;
-	    d1 = dot(glm::cross(v1 - q, v2 - q), n);
-	    d2 = dot(glm::cross(q - v0, v2 - v0), n);
-	    d3 = dot(glm::cross(v1 - v0, q - v0), n);
-
-	    if (d1 < 0 || d2 < 0 || d3 < 0)
-	    	continue;
 
 	    if (tMin == -1 || t < tMin) {
             tMin = t;
