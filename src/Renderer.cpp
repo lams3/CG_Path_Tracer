@@ -11,13 +11,15 @@ Renderer::Renderer() = default;
 void Renderer::drawBuffer(SDL_Renderer* renderer, std::vector<glm::vec3>& buffer, glm::ivec2 resolution, int samples, int index) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
+	float g = 1.0f / 2.2f;
 	for (int i = 0; i < resolution.x; i++) {
 	    for (int j = 0; j < resolution.y; j++) {
             glm::vec3 color = (buffer[j * resolution.x + i] / (float) ((i <= index) ? samples : (samples - 1)));
             color = glm::clamp(color, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-	        if (i == index)
+            color = glm::vec3(powf(color.x, g), powf(color.y, g), powf(color.z, g));
+            if (i == index)
             	color = glm::vec3(0.0f, 0.0f, 1.0f);
-	        SDL_SetRenderDrawColor(renderer, (int) (255 * color.r), (int) (255 * color.g), (int) (255 * color.b), 255);
+	        SDL_SetRenderDrawColor(renderer, (int) ((255 * color.r) + 0.5), (int) ((255 * color.g) + 0.5), (int) ((255 * color.b) + 0.5), 255);
             SDL_RenderDrawPoint(renderer, i, j);
         }
     }

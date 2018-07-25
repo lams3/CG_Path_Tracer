@@ -31,8 +31,8 @@ ObjectIntersection SphereGeometry::intersect(const Ray &ray) {
 		t = t2;
 	else t = -1;
 
-	glm::vec3 position = ray.origin + t * ray.direction;
-	return ObjectIntersection(t, position, glm::normalize(position - this->position), nullptr);
+	glm::vec3 p = ray.origin + t * ray.direction;
+	return ObjectIntersection(t, p, glm::normalize(p - this->position), nullptr);
 }
 
 glm::vec3 SphereGeometry::randomPoint() {

@@ -75,7 +75,7 @@ glm::vec3 Scene::trace(const Ray &ray, int depth) {
 	glm::vec3 p = closest.position;
 	glm::vec3 v = -ray.direction;
 	glm::vec3 n = closest.normal;
-	glm::vec3 n2 = glm::dot(n, v) >= 0 ? n : -n;
+	glm::vec3 n2 = glm::dot(n, v) > 0.0f ? n : -n;
 
 	glm::vec3 directIllumination(0.0f, 0.0f, 0.0f);
 	for (const auto& light : this->lights) {
@@ -97,13 +97,15 @@ glm::vec3 Scene::trace(const Ray &ray, int depth) {
 		if (spec <= 0.0f)
 			continue;
 
-		//directIllumination += il * closest.material->ks * spec * light->material->color;
+		directIllumination += il * closest.material->ks * spec * light->material->color;
 	}
+
+
 
 	glm::vec3 indirectIllumination(0.0f, 0.0f, 0.0f);
 	float ktot = closest.material->kd + closest.material->ks + closest.material->kt;
 	float randSelect = ktot * ((float) rand() / RAND_MAX);
-	if (randSelect <= closest.material->kd) {
+	if (randSelect < closest.material->kd) {
 		float r1 = 2.0f * M_PI * (float) rand() / RAND_MAX;
 		float r2 = (float) rand() / RAND_MAX;
 		float r2s = sqrt(r2);
@@ -112,13 +114,15 @@ glm::vec3 Scene::trace(const Ray &ray, int depth) {
 		glm::vec3 v1 = glm::cross(w1, u1);
 		//glm::vec3 d1 = glm::normalize(v1*r2s*cosf(r1) + w1*sqrtf(1.0f - r2) + u1*r2s*sinf(r1));
 		glm::vec3 d1 = v1*r2s*cosf(r1) + w1*sqrtf(1.0f - r2) + u1*r2s*sinf(r1);
-		indirectIllumination = closest.material->kd * glm::dot(n, d1) * closest.material->color * this->trace(Ray(closest.position, d1, 0.001), depth + 1);
-	} else if (randSelect <= (closest.material->kd + closest.material->ks)) {
-		glm::vec3 perfectReflection = (2.0f * n2 * glm::dot(v, n2)) - v;
-		indirectIllumination = closest.material->ks * this->trace(Ray(closest.position, perfectReflection, 0.001), depth + 1);
+		indirectIllumination = glm::dot(n, d1) * closest.material->color * this->trace(Ray(closest.position, d1, 0.001), depth + 1);
+		return directIllumination + indirectIllumination;
+	} else if (randSelect < (closest.material->kd + closest.material->ks)) {
+		glm::vec3 perfectReflection = (2.0f * glm::dot(v, n2) * n2) - v;
+		indirectIllumination = closest.material->color * this->trace(Ray(closest.position, perfectReflection, 0.001), depth + 1);
+		return indirectIllumination;
 	} else {
-		float m1 = 1.0f;
-		float m2 = 1.3f;
+		float m1 = 1.0f; //TODO kr
+		float m2 = 1.1f;
 		float cosT1;
 		float cosT2;
 		float rf;
@@ -128,8 +132,11 @@ glm::vec3 Scene::trace(const Ray &ray, int depth) {
 		cosT2 = sqrtf(1 - rf * rf * (1 - cosT1 * cosT1));
 		cosT2 = cosT1 >= 0.0f ? cosT2 : -cosT2;
 		glm::vec3 refract = glm::normalize((rf * ray.direction) + (rf * cosT1 - cosT2) * n);
-		indirectIllumination = closest.material->kt * this->trace(Ray(closest.position, refract, 0.001), depth + 1);
+		indirectIllumination = closest.material->color * this->trace(Ray(closest.position, refract, 0.001), depth + 1);
+		glm::vec3 c = closest.material->color;
+		//std::cout << c.r << " " << c.g << " " << c.b << std::endl;
+		return indirectIllumination;
 	}
 
-	return directIllumination + indirectIllumination;
+	//return directIllumination + indirectIllumination;
 }
