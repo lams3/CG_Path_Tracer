@@ -28,7 +28,7 @@ public:
     std::vector<Camera *> getCameras();
     std::vector<Object3D *> getObjects();
     std::vector<Object3D *> getLights();
-    glm::vec3 trace(const Ray& ray, int depth);
+    glm::vec3 trace(const Ray& ray, int depth, glm::vec3 attenuation);
     ObjectIntersection intersect(const Ray& ray);
 };
 

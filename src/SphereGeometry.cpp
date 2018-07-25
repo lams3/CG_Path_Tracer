@@ -2,6 +2,7 @@
 // Created by luca on 23/07/18.
 //
 
+#include <iostream>
 #include "SphereGeometry.h"
 
 std::string SphereGeometry::toString() {
@@ -11,28 +12,28 @@ std::string SphereGeometry::toString() {
 ObjectIntersection SphereGeometry::intersect(const Ray &ray) {
 	glm::vec3 op = ray.origin - this->position;
 
-	float a = 1;
-	float b = 2.0f * glm::dot(ray.direction, op);
+	float a = 1.0f;
+	float b = glm::dot(ray.direction, op);
 	float c = glm::dot(op, op) - r * r;
-	float delta = b * b - 4 * a * c;
+	float delta = b * b - a * c;
 
-	if (delta < 0.001f)
-		return ObjectIntersection(-1.0f, glm::vec3(0.0f), glm::vec3(0.0f), nullptr);
+	if (delta < 0.0f)
+		return ObjectIntersection(-1, glm::vec3(0.0f), glm::vec3(0.0f), nullptr);
 
 	float sDelta = sqrtf(delta);
 
-	float t1 = (-b - sDelta) / 2.0f;
-	float t2 = (-b + sDelta) / 2.0f;
+	float t1 = (-b - sDelta);
+	float t2 = (-b + sDelta);
 
-	float t;
-	if (t1 >= ray.minDistance)
-		t = t1;
-	else if (t2 >= ray.minDistance)
-		t = t2;
-	else t = -1;
+	float t = t1 > ray.minDistance ? t1 : (t2 > ray.minDistance ? t2 : -1);
 
-	glm::vec3 p = ray.origin + t * ray.direction;
-	return ObjectIntersection(t, p, glm::normalize(p - this->position), nullptr);
+	if (t > ray.minDistance) {
+		glm::vec3 p = ray.origin + t * ray.direction;
+		return ObjectIntersection(t, p, glm::normalize(p - this->position), nullptr);
+	}
+
+	return ObjectIntersection(-1, glm::vec3(), glm::vec3(), nullptr);
+
 }
 
 glm::vec3 SphereGeometry::randomPoint() {

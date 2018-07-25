@@ -43,21 +43,21 @@ void Renderer::render(Scene*& scene, int nSamples) {
 	    drawBuffer(renderer, buffer, camera->getResolution(), s, 0);
 	    int j;
 	    time_t start, stop;
-	    time(&start);
+	    start = SDL_GetTicks();
 	    #pragma omp parallel for schedule(dynamic, 1) private(j)
 	    for (int i = 0; i < camera->getResolution().x; i++) {
 		    for (j = 0; j < camera->getResolution().y; j++) {
-                int index = j * camera->getResolution().x + i;
-	            buffer[index] +=
-                        scene->trace(camera->getRay(glm::vec2(i, j)), 0);
-            }
-            //std::cout << i << std::endl;
+			    int index = j * camera->getResolution().x + i;
+			    buffer[index] +=
+					    scene->trace(camera->getRay(glm::vec2(i, j)), 0, glm::vec3(1.0f, 1.0f, 1.0f));
+		    }
+	            //std::cout << i << std::endl;
 	        SDL_PollEvent(nullptr);
 	        //if (i % 10 == 0)
 		    //    drawBuffer(renderer, buffer, camera->getResolution(), s, i);
         }
-        time(&stop);
-	    std::cout << difftime(stop, start) << std::endl;
+        stop = SDL_GetTicks();
+	    std::cout << stop - start << std::endl;
 	    std::cout << "progress: " << (100.0f * ((float)s / nSamples)) << "%" << "(" << s << "/" << nSamples << ")" << std::endl;
 	}
 

@@ -59,7 +59,7 @@ ObjectIntersection Scene::intersect(const Ray& ray) {
 	return closest;
 }
 
-glm::vec3 Scene::trace(const Ray &ray, int depth) {
+glm::vec3 Scene::trace(const Ray &ray, int depth, glm::vec3 attenuation) {
 
 	ObjectIntersection closest = this->intersect(ray);
 
@@ -68,6 +68,11 @@ glm::vec3 Scene::trace(const Ray &ray, int depth) {
 
 	if (closest.material->light)
 		return closest.material->color;
+
+	if (attenuation.x <= 0.05 && attenuation.y <= 0.05 && attenuation.z <= 0.05) {
+		//std::cout << "ajudei " << depth << std::endl;
+		//return attenuation;
+	}
 
 	if (depth > 5)
 		return glm::vec3(0.0f, 0.0f, 0.0f);
@@ -114,15 +119,18 @@ glm::vec3 Scene::trace(const Ray &ray, int depth) {
 		glm::vec3 v1 = glm::cross(w1, u1);
 		//glm::vec3 d1 = glm::normalize(v1*r2s*cosf(r1) + w1*sqrtf(1.0f - r2) + u1*r2s*sinf(r1));
 		glm::vec3 d1 = v1*r2s*cosf(r1) + w1*sqrtf(1.0f - r2) + u1*r2s*sinf(r1);
-		indirectIllumination = glm::dot(n, d1) * closest.material->color * this->trace(Ray(closest.position, d1, 0.001), depth + 1);
+
+		glm::vec3 diff = closest.material->kd * glm::dot(n, d1) * closest.material->color;
+		indirectIllumination = diff * this->trace(Ray(closest.position, d1, 0.001), depth + 1, diff * attenuation);
 		return directIllumination + indirectIllumination;
 	} else if (randSelect < (closest.material->kd + closest.material->ks)) {
 		glm::vec3 perfectReflection = (2.0f * glm::dot(v, n2) * n2) - v;
-		indirectIllumination = closest.material->color * this->trace(Ray(closest.position, perfectReflection, 0.001), depth + 1);
+		glm::vec3 spec = closest.material->color;
+		indirectIllumination = spec * this->trace(Ray(closest.position, perfectReflection, 0.001), depth + 1, spec * attenuation);
 		return indirectIllumination;
 	} else {
 		float m1 = 1.0f; //TODO kr
-		float m2 = 1.1f;
+		float m2 = 1.31f;
 		float cosT1;
 		float cosT2;
 		float rf;
@@ -132,9 +140,8 @@ glm::vec3 Scene::trace(const Ray &ray, int depth) {
 		cosT2 = sqrtf(1 - rf * rf * (1 - cosT1 * cosT1));
 		cosT2 = cosT1 >= 0.0f ? cosT2 : -cosT2;
 		glm::vec3 refract = glm::normalize((rf * ray.direction) + (rf * cosT1 - cosT2) * n);
-		indirectIllumination = closest.material->color * this->trace(Ray(closest.position, refract, 0.001), depth + 1);
-		glm::vec3 c = closest.material->color;
-		//std::cout << c.r << " " << c.g << " " << c.b << std::endl;
+		glm::vec3 trans = closest.material->color;
+		indirectIllumination = trans * this->trace(Ray(closest.position, refract, 0.001), depth + 1, trans * attenuation);
 		return indirectIllumination;
 	}
 
