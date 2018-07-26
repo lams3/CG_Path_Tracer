@@ -120,7 +120,7 @@ glm::vec3 Scene::trace(const Ray &ray, int depth, glm::vec3 attenuation) {
 		//glm::vec3 d1 = glm::normalize(v1*r2s*cosf(r1) + w1*sqrtf(1.0f - r2) + u1*r2s*sinf(r1));
 		glm::vec3 d1 = v1*r2s*cosf(r1) + w1*sqrtf(1.0f - r2) + u1*r2s*sinf(r1);
 
-		glm::vec3 diff = closest.material->kd * glm::dot(n, d1) * closest.material->color;
+		glm::vec3 diff = closest.material->kd * glm::dot(n2, d1) * closest.material->color;
 		indirectIllumination = diff * this->trace(Ray(closest.position, d1, 0.001), depth + 1, diff * attenuation);
 		return directIllumination + indirectIllumination;
 	} else if (randSelect < (closest.material->kd + closest.material->ks)) {

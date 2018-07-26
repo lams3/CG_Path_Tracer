@@ -7,6 +7,7 @@
 #include "CameraLoader.h"
 #include "ObjectLoader.h"
 #include "SphereGeometry.h"
+#include "MeshGeometry.h"
 
 void SceneLoader::load(const std::string& path, Scene*& scene) {
     std::ifstream sceneFile(path);
@@ -41,7 +42,7 @@ void SceneLoader::load(const std::string& path, Scene*& scene) {
 	        float kd, ks, kt;
 	        sceneFile >> color.r >> color.g >> color.b >> kd >> ks >> kt;
 	        Object3D* object = new Object3D(
-			        new SphereGeometry(position, r),
+			        new MeshGeometry(r, position, 20),
 			        Material::makeObjectMaterial(kd, ks, kt, color)
 	        );
 			scene->add(object);

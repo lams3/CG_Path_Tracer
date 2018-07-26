@@ -51,6 +51,7 @@ void Renderer::render(Scene*& scene, int nSamples) {
 			    buffer[index] +=
 					    scene->trace(camera->getRay(glm::vec2(i, j)), 0, glm::vec3(1.0f, 1.0f, 1.0f));
 		    }
+		    //std::cout << i << std::endl;
 	            //std::cout << i << std::endl;
 	        SDL_PollEvent(nullptr);
 	        //if (i % 10 == 0)
