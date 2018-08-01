@@ -10,6 +10,8 @@ if (OPENMP_FOUND)
     set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
-add_executable(CG_Path_Tracer src/main.cpp src/Renderer.cpp src/Renderer.h src/Scene.cpp src/Scene.h src/SceneLoader.cpp src/SceneLoader.h src/Camera.cpp src/Camera.h src/Object3D.cpp src/Object3D.h src/Light.cpp src/Light.h src/CameraLoader.cpp src/CameraLoader.h src/ObjectLoader.cpp src/ObjectLoader.h src/MeshGeometry.cpp src/MeshGeometry.h src/Material.cpp src/Material.h src/Geometry.cpp src/Geometry.h src/Ray.cpp src/Ray.h src/ObjectIntersection.cpp src/ObjectIntersection.h src/SphereGeometry.cpp src/SphereGeometry.h)
+file(COPY resources DESTINATION ${CMAKE_BINARY_DIR})
+
+add_executable(CG_Path_Tracer src/main.cpp src/renderer/Renderer.cpp src/renderer/Renderer.h src/core/Scene.cpp src/core/Scene.h src/loaders/SceneLoader.cpp src/loaders/SceneLoader.h src/core/Camera.cpp src/core/Camera.h src/core/Object3D.cpp src/core/Object3D.h src/loaders/CameraLoader.cpp src/loaders/CameraLoader.h src/loaders/MeshLoader.cpp src/loaders/MeshLoader.h src/geometry/MeshGeometry.cpp src/geometry/MeshGeometry.h src/core/Material.cpp src/core/Material.h src/geometry/Geometry.cpp src/geometry/Geometry.h src/core/Ray.cpp src/core/Ray.h src/core/ObjectIntersection.cpp src/core/ObjectIntersection.h src/geometry/SphereGeometry.cpp src/geometry/SphereGeometry.h src/geometry/Triangle.cpp src/geometry/Triangle.h src/loaders/MaterialLoader.cpp src/loaders/MaterialLoader.h src/geometry/BoxGeometry.cpp src/geometry/BoxGeometry.h src/geometry/VertexData.cpp src/geometry/VertexData.h)
 
 target_link_libraries(CG_Path_Tracer SDL2)
